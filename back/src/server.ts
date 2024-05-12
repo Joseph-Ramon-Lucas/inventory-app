@@ -1,7 +1,13 @@
 import express, { Express, Request, Response, json } from "express";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
-dotenv.config({ path: "../.env" });
+import {Pool} from "pg";
+
+
+const saltRounds = 10;
+
+dotenv.config({ path: "../configs/.env" });
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -20,10 +26,14 @@ app.get("/", (req: Request, res: Response) => {
 //user authentication
 app.post("/register", (req: Request, res:Response) => {
     let {username, password} = req.body;
-
     console.log('reqbody:', req.body);
 
-    console.log(username, password, "omg!");
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, saltRounds);
+
+    console.log("hash", hash);
+
+
     
     res.status(201).send(username+" registered!");
 })
