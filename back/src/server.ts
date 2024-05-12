@@ -1,16 +1,18 @@
 import express, { Express, Request, Response, json } from "express";
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 
 import {Pool} from "pg";
+import dbEnv from "../env.json";
+
+// let dbEnv = dotenv.config({ path: "../env.json" });
+let db = new Pool(dbEnv)
 
 
+// salts for password
 const saltRounds = 10;
 
-dotenv.config({ path: "../configs/.env" });
-
 const app: Express = express();
-const port = process.env.PORT || 3000;
+const port = 3000;
 
 //make every route public
 app.use(express.static("public"));
@@ -32,6 +34,10 @@ app.post("/register", (req: Request, res:Response) => {
     const hash = bcrypt.hashSync(password, saltRounds);
 
     console.log("hash", hash);
+
+    db
+
+
 
 
     

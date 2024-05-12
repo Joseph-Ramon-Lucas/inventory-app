@@ -6,7 +6,7 @@
   "scripts": {
     "setup": "cd ../ && psql -U postgres -f setup.sql",
     "build": "rm -rf out && mkdir out && tsc",
-    "start": "cd out && node server.js",
+    "start": "cd out/src && node server.js",
     "watch": "npm run build && tsc-watch --onSuccess \"npm run start\"",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest --runInBand --rootDir=src"
   },
