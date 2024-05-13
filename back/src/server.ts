@@ -31,17 +31,55 @@ app.post("/register", (req: Request, res:Response) => {
     console.log('reqbody:', req.body);
 
     const salt = bcrypt.genSaltSync(saltRounds);
-    const hash = bcrypt.hashSync(password, saltRounds);
+    const hashWord = bcrypt.hashSync(password, saltRounds);
 
-    console.log("hash", hash);
+    console.log("hash", hashWord);
 
-    db
+    // check if this user already exists
+    try {
+        db.query(
+            `SELECT username FROM users WHERE username = $1`, [username]
+        )
+        .then((result) => {
+            let dbResult = result.rows;
+
+            // can't use an existing username
+            if (dbResult.includes(username)) {
+                res.status(400).send(`Username ${username} is already in use`)
+            }
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+            return
+        })
+    }
+    catch(e:any){
+        console.error(e);
+        res.status(500)
+        return
+    }
+
+
+    // store new user
+    db.query(
+        `INSERT INTO users(username, password) VALUES($1, $2)`, [username, hashWord]
+    )
+    .then((result) => {
+        let dbResult = JSON.stringify(result.rows)
+        console.log(dbResult);
+        res.status(200).send(dbResult)
+    })
+    .catch((error) => {
+        console.error(JSON.stringify(error));
+        res.status(500).json({error: error});
+        return
+    })
 
 
 
 
     
-    res.status(201).send(username+" registered!");
+    // res.status(201).send(username+" registered!");
 })
 
 
