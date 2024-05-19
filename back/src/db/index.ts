@@ -8,5 +8,3 @@ const client = new Pool(dbEnv);
 export const db = drizzle(client, {
     schema,
 });
-
-export const poop = "fart";
