@@ -5,6 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import { Home } from "./components/Home.tsx";
 import { ErrorPage } from "./components/ErrorPage.tsx";
+import { Login } from "./components/Login.tsx";
+import { CreateAccount } from "./components/CreateAccount.tsx";
 
 const router = createBrowserRouter([
 	{
@@ -15,6 +17,14 @@ const router = createBrowserRouter([
 		path: "*",
 		element: <ErrorPage />,
 	},
+	{
+		path: "/login",
+		element: <Login/>
+	},
+	 {
+		path: "/createAccount",
+		element: <CreateAccount/>
+	 }
 ]);
 
 // biome-ignore lint/style/noNonNullAssertion: <explanation>
