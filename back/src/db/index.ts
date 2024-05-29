@@ -6,5 +6,5 @@ import * as schema from "./schema";
 const client = new Pool(dbEnv);
 
 export const db = drizzle(client, {
-    schema,
+	schema,
 });
