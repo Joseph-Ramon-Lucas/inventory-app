@@ -2,4 +2,4 @@
 *env.json
 server.js*
 
-*/out/*
+*/out/**/*
