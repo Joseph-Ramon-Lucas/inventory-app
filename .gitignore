@@ -3,3 +3,5 @@
 server.js*
 
 */out/**/*
+back/out/src/db/index.js
+back/out/src/db/schema.js
