@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter, Link, RouterProvider } from "react-router-dom";
-import "../App.css";
+// import "../App.css";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "./ui/Mode-Toggle";
 
 export function Home() {
 
@@ -14,6 +15,8 @@ export function Home() {
 
 				<Link to="/login"><Button >Log In</Button></Link>
 				<Link to="/createAccount"><Button>Create Account</Button></Link>
+				
+				<ModeToggle/>
 				
 			</div>
 		</>
