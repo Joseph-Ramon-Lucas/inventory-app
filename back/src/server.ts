@@ -51,7 +51,7 @@ app.post("/register", async (req: Request, res: Response) => {
 			.limit(1)
 			.then((results) => {
 				if (results.length > 0) {
-					res.status(400).send(`Username ${username} is already in use`);
+					return res.status(400).send(`Username ${username} is already in use`);
 				}
 			})
 			.catch((err) => {
