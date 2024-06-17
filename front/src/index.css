@@ -62,6 +62,11 @@ input{
   
   /* border-color: #646cff; */
 }
+label {
+  padding: 0.8em 1.4em;
+  margin: 0.6em 1.2em;
+  font-size: 1.3em;
+}
 
 #textFields {
   display: flex;
@@ -69,18 +74,26 @@ input{
   align-content: center;
   justify-content: center;
   align-items: center;
+
 }
 .labels{
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
 }
 .inputs{
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+#errorDiv {
+  color: red;
 }
 
 
-
-@media (prefers-color-scheme: light) {
-  :root {
+@media only screen and (max-width: 668px) {
+  /* :root {
     color: #213547;
     background-color: #ffffff;
   }
@@ -89,5 +102,8 @@ input{
   }
   button {
     background-color: #f9f9f9;
+  } */
+  .labels{
+    display: none;
   }
 }
