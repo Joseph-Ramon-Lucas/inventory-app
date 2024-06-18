@@ -24,7 +24,9 @@ export function CreateAccount() {
 		}
 	}, [password, retypePassword]);
 
-	function handleSubmit(username: string, password: string) {}
+	function handleSubmit(username: string, password: string) {
+		console.log("oi");
+	}
 
 	return (
 		<div>
@@ -32,52 +34,62 @@ export function CreateAccount() {
 				<Button>Home 🏠</Button>
 			</Link>
 			<h1>Create your Cabinet Account</h1>
-			<div id="textFields">
-				<div className="labels">
-					<Label htmlFor="username">Username</Label>
-					<Label htmlFor="password">Password</Label>
-					<Label htmlFor="retypePassword">Retype Password</Label>
+			<div className="textfieldContainer">
+				<div className="textFields">
+					<div className="inputs">
+						<div>
+							<Label htmlFor="username">Username</Label>
+							<Input
+								type="username"
+								id="username"
+								placeholder="username"
+								onChange={(event) => {
+									setUsername(event.target.value);
+								}}
+							/>
+						</div>
+
+						<br />
+						<div>
+							<Label htmlFor="password">Password</Label>
+							<Input
+								type="password"
+								id="password"
+								placeholder="password"
+								onChange={(event) => {
+									setPassword(event.target.value);
+								}}
+							/>
+						</div>
+
+						<br />
+						<div>
+							<Label htmlFor="retypePassword">Retype Password</Label>
+							<Input
+								type="password"
+								id="retypePassword"
+								placeholder="Retype your password"
+								onChange={(event) => {
+									setRetypePassword(event.target.value);
+								}}
+							/>
+						</div>
+					</div>
 				</div>
-				<div className="inputs">
-					<div>
-						<Input
-							type="username"
-							id="username"
-							placeholder="username"
-							onChange={(event) => {
-								setUsername(event.target.value);
-							}}
-						/>
-					</div>
-
-					<br />
-					<div>
-						<Input
-							type="password"
-							id="password"
-							placeholder="password"
-							onChange={(event) => {
-								setPassword(event.target.value);
-							}}
-						/>
-					</div>
-
-					<br />
-					<div>
-						<Input
-							type="password"
-							id="retypePassword"
-							placeholder="Retype your password"
-							onChange={(event) => {
-								setRetypePassword(event.target.value);
-							}}
-						/>
-					</div>
+				<div className="errorDiv">{errorText ?? (errorText && true)}</div>
+				<div className="submit">
+					<Button onClick={() => handleSubmit(username, password)}>
+						Submit
+					</Button>
 				</div>
 			</div>
-			<div id="errorDiv">{errorText ?? (errorText && true)}</div>
-			<div id="submit">
-				<Button onClick={() => handleSubmit(username, password)}>Submit</Button>
+
+			<div className="registerSwitch">
+				<br />
+				<p>Already Have an account?</p>
+				<Link to="/login">
+					<Button>Log In with existing account</Button>
+				</Link>
 			</div>
 		</div>
 	);

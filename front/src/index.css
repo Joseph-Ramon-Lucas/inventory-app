@@ -22,6 +22,11 @@ a:hover {
   color: #535bf2;
 }
 
+p{
+  margin: 0;
+  padding: 0;
+}
+
 /* body {
   margin: 0;
   display: flex;
@@ -36,7 +41,7 @@ a:hover {
 } */
 
 button {
-  border-radius: 8px;
+  border-radius: 16px;
   border: 2px solid transparent;
   padding: 0.6em 1.2em;
   margin: 0.6em 1.2em;
@@ -58,7 +63,7 @@ button:focus-visible {
 input{
   padding: 0.8em 1.4em;
   margin: 0.6em 1.2em;
-  border-radius: 10px;
+  border-radius: 16px;
   
   /* border-color: #646cff; */
 }
@@ -68,30 +73,59 @@ label {
   font-size: 1.3em;
 }
 
-#textFields {
+
+.authButtons {
+  display: flex;
+  flex-direction: column;
+}
+
+.authButtons button {
+  min-width: 40%;
+}
+
+.textfieldContainer {
+  border:#535bf2 solid 3px;
+  border-radius: 24px;
+  margin: 0 16em;
+  padding: 16px;
+
+  /* box-shadow: 0 0px 2em #535bf2; */
+}
+
+.textFields {
   display: flex;
   flex-wrap: wrap;
   align-content: center;
   justify-content: center;
   align-items: center;
 
+
+
+
 }
-.labels{
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
+
 .inputs{
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-#errorDiv {
+.errorDiv {
   color: red;
 }
 
 
+/* tablets */
+@media only screen and (max-width: 1072px) {
+  .textfieldContainer {
+    margin: 0 7em;
+  }
+
+
+}
+
+
+/* for phone screens */
 @media only screen and (max-width: 668px) {
   /* :root {
     color: #213547;
@@ -103,7 +137,9 @@ label {
   button {
     background-color: #f9f9f9;
   } */
-  .labels{
-    display: none;
+
+
+  .textfieldContainer {
+    margin: 0 1em;
   }
 }
