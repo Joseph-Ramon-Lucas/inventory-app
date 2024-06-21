@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { Link } from "react-router-dom";
+import { Link, redirect } from "react-router-dom";
 import axios from "axios";
 
 export function CreateAccount() {
@@ -24,8 +24,22 @@ export function CreateAccount() {
 		}
 	}, [password, retypePassword]);
 
-	function handleSubmit(username: string, password: string) {
+	async function handleSubmit(username: string, password: string) {
 		console.log("oi");
+		const postBody = { username: username, password: password };
+		console.log("postbody:", postBody);
+
+		try {
+			const postResult = await axios.post("/api/register", postBody);
+			if (postResult) {
+				// return redirect("/dashBoard")
+			} else {
+				return redirect("/login");
+			}
+		} catch (e) {
+			console.error(e);
+			// res send an error
+		}
 	}
 
 	return (
@@ -78,7 +92,7 @@ export function CreateAccount() {
 				</div>
 				<div className="errorDiv">{errorText ?? (errorText && true)}</div>
 				<div className="submit">
-					<Button onClick={() => handleSubmit(username, password)}>
+					<Button onClick={async () => await handleSubmit(username, password)}>
 						Submit
 					</Button>
 				</div>

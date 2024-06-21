@@ -119,9 +119,12 @@ label {
 @media only screen and (max-width: 1072px) {
   .textfieldContainer {
     margin: 0 7em;
+    
   }
-
-
+  .authButtons button {
+    min-width: 70%;
+  }
+  
 }
 
 

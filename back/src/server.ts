@@ -17,15 +17,16 @@ const port = 3000;
 
 //make every route public
 app.use(express.static("public"));
-
 //parse req.body in json
 app.use(json());
 
-app.get("/", (req: Request, res: Response) => {
-	res.send("Welcome to the Inventory App");
+app.get("/api/", (req: Request, res: Response) => {
+	console.log("oi");
+
+	return res.status(200).json({ welcomeText: "Welcome to the Inventory App" });
 });
 //user authentication
-app.post("/register", async (req: Request, res: Response) => {
+app.post("/api/register", async (req: Request, res: Response) => {
 	// check if body is empty
 	console.log("HERE IS THE REQ BODY", req.body);
 
@@ -73,7 +74,7 @@ app.post("/register", async (req: Request, res: Response) => {
 			.returning({ userId: usersTable.userId })
 			.then((results) => {
 				console.log(results);
-				res.status(201).json({ message: JSON.stringify(results) });
+				return res.status(201).json({ message: JSON.stringify(results) });
 			})
 			.catch((err) => {
 				console.error(err);
