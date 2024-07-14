@@ -13,6 +13,7 @@ export function CreateAccount() {
 	const [errorText, setErrorText] = useState("");
 	const [matching, setMatching] = useState(false);
 
+	// password checking
 	useEffect(() => {
 		console.log(password, retypePassword);
 		if (password !== retypePassword) {
@@ -25,20 +26,22 @@ export function CreateAccount() {
 	}, [password, retypePassword]);
 
 	async function handleSubmit(username: string, password: string) {
-		console.log("oi");
 		const postBody = { username: username, password: password };
 		console.log("postbody:", postBody);
 
 		try {
-			const postResult = await axios.post("/api/register", postBody);
+			const postResult = await axios.post("/api/account/register", postBody);
 			if (postResult) {
+				console.log("we got it");
+				setErrorText("");
+
 				// return redirect("/dashBoard")
 			} else {
-				return redirect("/login");
+				return redirect("/api/account/login");
 			}
 		} catch (e) {
 			console.error(e);
-			// res send an error
+			return;
 		}
 	}
 
@@ -92,7 +95,20 @@ export function CreateAccount() {
 				</div>
 				<div className="errorDiv">{errorText ?? (errorText && true)}</div>
 				<div className="submit">
-					<Button onClick={async () => await handleSubmit(username, password)}>
+					<Button
+						onClick={async () => {
+							console.log(matching);
+
+							if (matching && username) {
+								await handleSubmit(username, password);
+							} else if (username.length < 1) {
+								setErrorText("Cannot create an account with empty username");
+							} else {
+								setErrorText("Cannot create an account until passwords match");
+								return;
+							}
+						}}
+					>
 						Submit
 					</Button>
 				</div>
