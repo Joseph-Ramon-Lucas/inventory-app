@@ -8,8 +8,14 @@ import bcrypt from "bcrypt";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { usersTable } from "./db/schema";
-import { userCredentials } from "./types";
-import { isValid } from "zod";
+import {
+	errorResponse,
+	successResponse,
+	userCredentialSchema,
+	type RequestResult,
+	type UserCredentials,
+} from "./types";
+import { isValid, z } from "zod";
 // salts for password
 const saltRounds = 10;
 
@@ -20,6 +26,15 @@ const port = 3000;
 app.use(express.static("public"));
 //parse req.body in json
 app.use(json());
+
+function verifyCredentialLength(inputData: UserCredentials): RequestResult {
+	const parseResult = userCredentialSchema.safeParse(inputData);
+	if (!parseResult.success) {
+		console.log(parseResult, "this is the parse result");
+		return errorResponse("Incorrect inputs when logging in");
+	}
+	return successResponse();
+}
 
 app.get("/api/", (req: Request, res: Response) => {
 	console.log("oi");
@@ -37,11 +52,20 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 	// 		.json({ error: "request body missing username and password fields" });
 	// }
 
-	const { username, password } = req.body;
+	// check if user input meets requirement
+	const inputData: UserCredentials = req.body;
+	const verifyCheck = verifyCredentialLength(inputData);
+
+	if (!verifyCheck.success) {
+		return res
+			.status(400)
+			.json(errorResponse("Input Credentials don't meet required length"));
+	}
+
 	console.log("reqbody:", req.body);
 
 	const salt = bcrypt.genSaltSync(saltRounds);
-	const hashWord = bcrypt.hashSync(password, saltRounds);
+	const hashWord = bcrypt.hashSync(inputData.password, saltRounds);
 
 	console.log("hash", hashWord);
 
@@ -49,11 +73,15 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 	try {
 		db.select()
 			.from(usersTable)
-			.where(eq(usersTable.username, username))
+			.where(eq(usersTable.username, inputData.username))
 			.limit(1)
 			.then((results) => {
 				if (results.length > 0) {
-					return res.status(400).send(`Username ${username} is already in use`);
+					return res
+						.status(400)
+						.json(
+							errorResponse(`Username ${inputData.username} is already in use`),
+						);
 				}
 			})
 			.catch((err) => {
@@ -71,7 +99,7 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 	try {
 		await db
 			.insert(usersTable)
-			.values({ username: username, password: hashWord })
+			.values({ username: inputData.username, password: hashWord })
 			.returning({ userId: usersTable.userId })
 			.then((results) => {
 				console.log(results);
@@ -91,28 +119,41 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 app.post("/api/account/login", async (req: Request, res: Response) => {
 	// reject empty bodies
 	if (Object.values(req.body).length < 1) {
-		return res.status(400).send("Cannot login with empty request body");
+		return res
+			.status(400)
+			.json(errorResponse("Cannot login with empty request body"));
 	}
 
-	const { username, password } = req.body;
-	console.log("un & pw", username, password);
+	const inputData: UserCredentials = req.body;
+	const verifyCheck = verifyCredentialLength(inputData);
+
+	if (!verifyCheck.success) {
+		return res
+			.status(400)
+			.json(errorResponse("Input Credentials don't meet required length"));
+	}
 
 	// check if username exists
 	try {
 		await db
 			.select()
 			.from(usersTable)
-			.where(eq(usersTable.username, username))
+			.where(eq(usersTable.username, inputData.username))
 			.limit(1)
 			.then((results) => {
 				// username doesn't exist
-				if (results.length < 1) {
-					return res.status(400).send(`Username, ${username} doesn't exist!`);
+				if (results.length < 1 || results == null) {
+					return res
+						.status(400)
+						.json(
+							errorResponse(`Username, ${inputData.username} doesn't exist!`),
+						);
 				}
 				console.log("selection results=", results);
+				const storedPassword: string = results[0].password;
 
 				// compare hash & password
-				const match = bcrypt.compare(password, results[0].password);
+				const match = bcrypt.compare(inputData.password, storedPassword);
 			})
 			.catch((err) => {
 				res.status(500).json(err);

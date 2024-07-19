@@ -4,5 +4,5 @@ import { pgTable } from "drizzle-orm/pg-core";
 export const usersTable = pgTable("users", {
 	userId: serial("userid").primaryKey(),
 	username: text("username").notNull(),
-	password: text("password"),
+	password: text("password").notNull(),
 });
