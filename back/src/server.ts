@@ -11,11 +11,13 @@ import { usersTable } from "./db/schema";
 import {
 	errorResponse,
 	successResponse,
+	successResponseBody,
 	userCredentialSchema,
 	type RequestResult,
 	type UserCredentials,
 } from "./types";
 import { isValid, z } from "zod";
+
 // salts for password
 const saltRounds = 10;
 
@@ -30,7 +32,7 @@ app.use(json());
 function verifyCredentialLength(inputData: UserCredentials): RequestResult {
 	const parseResult = userCredentialSchema.safeParse(inputData);
 	if (!parseResult.success) {
-		console.log(parseResult, "this is the parse result");
+		// console.log(parseResult, "this is the parse result");
 		return errorResponse("Incorrect inputs when logging in");
 	}
 	return successResponse();
@@ -59,7 +61,11 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 	if (!verifyCheck.success) {
 		return res
 			.status(400)
-			.json(errorResponse("Input Credentials don't meet required length"));
+			.json(
+				errorResponse(
+					"Usernames must be between 3-25 char, and passwords 8-30 char",
+				),
+			);
 	}
 
 	console.log("reqbody:", req.body);
@@ -69,50 +75,40 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 
 	console.log("hash", hashWord);
 
-	// check if this user already exists
 	try {
-		db.select()
+		// check if this user already exists
+		const lookupResults = await db
+			.select()
 			.from(usersTable)
 			.where(eq(usersTable.username, inputData.username))
 			.limit(1)
-			.then((results) => {
-				if (results.length > 0) {
-					return res
-						.status(400)
-						.json(
-							errorResponse(`Username ${inputData.username} is already in use`),
-						);
-				}
-			})
-			.catch((err) => {
-				res.status(500).json(err);
-				return;
+			.catch((e) => {
+				return res.status(500).json(errorResponse(e));
 			});
-	} catch (e) {
-		console.error(e);
 
-		res.status(500).json(e);
-		return;
-	}
+		// determine it's an array to use length method
+		if (Array.isArray(lookupResults) && lookupResults.length > 0) {
+			return res
+				.status(400)
+				.json(
+					errorResponse(`Username ${inputData.username} is already in use`),
+				);
+		}
 
-	// store new user
-	try {
-		await db
+		// store new user
+		const insertResults = await db
 			.insert(usersTable)
 			.values({ username: inputData.username, password: hashWord })
 			.returning({ userId: usersTable.userId })
-			.then((results) => {
-				console.log(results);
-				return res.status(201).json({ message: JSON.stringify(results) });
-			})
 			.catch((err) => {
 				console.error(err);
-				return res.status(500).json(err);
+				return res.status(500).json(errorResponse(err));
 			});
+		return res.status(201).json(successResponseBody(insertResults));
 	} catch (e) {
 		console.error(e);
-
-		return res.status(500).send(e);
+		res.status(500).json(e);
+		return;
 	}
 });
 
@@ -130,7 +126,11 @@ app.post("/api/account/login", async (req: Request, res: Response) => {
 	if (!verifyCheck.success) {
 		return res
 			.status(400)
-			.json(errorResponse("Input Credentials don't meet required length"));
+			.json(
+				errorResponse(
+					"Usernames must be between 3-25 char, and passwords 8-30 char",
+				),
+			);
 	}
 
 	// check if username exists
@@ -140,7 +140,7 @@ app.post("/api/account/login", async (req: Request, res: Response) => {
 			.from(usersTable)
 			.where(eq(usersTable.username, inputData.username))
 			.limit(1)
-			.then((results) => {
+			.then(async (results) => {
 				// username doesn't exist
 				if (results.length < 1 || results == null) {
 					return res
@@ -153,11 +153,21 @@ app.post("/api/account/login", async (req: Request, res: Response) => {
 				const storedPassword: string = results[0].password;
 
 				// compare hash & password
-				const match = bcrypt.compare(inputData.password, storedPassword);
+				const match = await bcrypt.compare(inputData.password, storedPassword);
+				// wrong password --> don't tell them that for security
+
+				if (!match) {
+					return res
+						.status(400)
+						.json(errorResponse("Incorrect Username or Password"));
+				}
+
+				// authenticate user
+
+				return res.status(200).send("it works!");
 			})
 			.catch((err) => {
-				res.status(500).json(err);
-				return;
+				return res.status(500).json(err);
 			});
 	} catch (e) {
 		console.error(e);
@@ -165,8 +175,6 @@ app.post("/api/account/login", async (req: Request, res: Response) => {
 		res.status(500).json(e);
 		return;
 	}
-
-	return res.status(200).send("it works!");
 });
 
 app.get("/search", (req: Request, res: Response) => {
