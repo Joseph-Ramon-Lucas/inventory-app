@@ -1,4 +1,8 @@
 import { promise, type z } from "zod";
+import { errorResponse, type ErrorResult, type UserCredentials } from "./types";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
+import { usersTable } from "./db/schema";
 
 // if parsing fails, will return a list of string error messages
 export function parseError(zodError: z.ZodError): string[] {
@@ -20,3 +24,19 @@ export function parseError(zodError: z.ZodError): string[] {
 //     const new Promise<void>((resolve, reject) =>
 //         await setTimeout(ms))
 // }
+
+export async function checkUserInDb(
+	inputData: UserCredentials,
+): Promise<
+	{ userId: number; username: string; password: string }[] | ErrorResult
+> {
+	const lookupResults = await db
+		.select()
+		.from(usersTable)
+		.where(eq(usersTable.username, inputData.username))
+		.limit(1)
+		.catch((e) => {
+			return errorResponse(e);
+		});
+	return lookupResults;
+}
