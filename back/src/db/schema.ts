@@ -10,6 +10,6 @@ export const usersTable = pgTable("users", {
 });
 
 export const tokenTable = pgTable("tokens", {
-	sessionId: uuid("sessionid").primaryKey().defaultRandom(),
+	tokenId: uuid("tokenid").primaryKey().defaultRandom(),
 	userId: integer("userid").references(() => usersTable.userId),
 });
