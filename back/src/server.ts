@@ -21,6 +21,7 @@ import { checkUserInDb } from "./utils";
 import { uuid } from "drizzle-orm/pg-core";
 import { CookieOptions } from "express";
 import cookieParser from "cookie-parser";
+import { isArray } from "util";
 // salts for password
 const saltRounds = 10;
 
@@ -69,7 +70,6 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 
 	console.log("reqbody:", req.body);
 
-	const salt = bcrypt.genSaltSync(saltRounds);
 	const hashWord = bcrypt.hashSync(inputData.password, saltRounds);
 
 	console.log("hash", hashWord);
@@ -101,8 +101,25 @@ app.post("/api/account/register", async (req: Request, res: Response) => {
 				console.error(err);
 				return res.status(500).json(errorResponse(err));
 			});
+		//authenticate user & make new token
+		if (insertResults && Array.isArray(insertResults)) {
+			const userId = insertResults[0].userId;
+			const freshToken = await db
+				.insert(tokenTable)
+				.values({
+					userId: userId,
+				})
+				.returning({ freshToken: tokenTable.tokenId })
+				.catch((e) => {
+					console.error("issue fetching user from db", e);
+					return res.status(500).json(e);
+				});
 
-		return res.status(201).json(successResponseBody(insertResults));
+			return res
+				.status(201)
+				.cookie("token", freshToken)
+				.json(successResponseBody(insertResults));
+		}
 	} catch (e) {
 		console.error(e);
 		res.status(500).json(e);

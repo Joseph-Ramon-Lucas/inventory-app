@@ -2,7 +2,7 @@ import { promise, type z } from "zod";
 import { errorResponse, type ErrorResult, type UserCredentials } from "./types";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { usersTable } from "./db/schema";
+import { tokenTable, usersTable } from "./db/schema";
 
 // if parsing fails, will return a list of string error messages
 export function parseError(zodError: z.ZodError): string[] {
@@ -40,3 +40,13 @@ export async function checkUserInDb(
 		});
 	return lookupResults;
 }
+
+// token functions:
+// export async function deleteToken(
+// 	userToken: string,
+// ): Promise<{ userId: number; tokenId: string }[]> {
+// 	const deletedRow = await db
+// 		.delete(tokenTable)
+// 		.where(eq(tokenTable.tokenId, userToken))
+// 		.returning();
+// }
